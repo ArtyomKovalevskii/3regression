@@ -22,7 +22,7 @@ def regressor_1(n):
 def regressor_2(n):
     X=np.random.standard_normal((n,3))
     X[:,0]=1.
-    X[:,2]+=3*X[:,2]
+    X[:,2]+=3*X[:,1]
     return X
 
 def data_true(regressor,n):
@@ -194,12 +194,66 @@ def Smirnov(x,lambda_list):
         for k in range(1,kk+1):
                 F=F+(-1)**k/pi*integrate.quad(lambda la: exp(-la*x/2)*(-Determ(la,lambda_list))**(-0.5)/la, lambda_list[2*k-2], lambda_list[2*k-1])[0]
         return F
+
+################ Regressors for experiments
+
+r1=regressor_1(n)
+r2=regressor_2(n)
+xx1=r1
+xx2=r2
+
+set1=[]
+for i in range(len(xx1[:,0])):
+    if xx1[i,1]>=0:
+        set1.append([xx1[i,1],xx1[i,2],1])
+    if xx1[i,1]<0:
+        set1.append([xx1[i,1],xx1[i,2],2])
         
+set2=[]
+for i in range(len(xx2[:,0])):
+    if xx2[i,1]+xx2[i,2]>=0:
+        set2.append([xx2[i,1],xx2[i,2],1])
+    if xx2[i,1]+xx2[i,2]<0:
+        set2.append([xx2[i,1],xx2[i,2],2])
+
+df1 = pd.DataFrame(set1, columns=['x2', 'x3', 'class'])
+df2 = pd.DataFrame(set2, columns=['x2', 'x3', 'class'])
+
+
+# Create a figure with 1 row and 2 columns
+fig, axes = plt.subplots(1, 2, figsize=(18, 5))
+
+# Plot on the first subplot
+sns.scatterplot(data=df1, x="x2", y="x3", style="class", ax=axes[0])
+axes[0].set_title('Experiments 1 and 3', fontsize=20)
+axes[0].set_xlabel("x2",fontsize=20)
+axes[0].set_ylabel("x3",fontsize=20)
+axes[0].tick_params(labelsize=20)
+axes[0].legend(fontsize="18")
+
+
+# Plot on the second subplot
+sns.scatterplot(data=df2, x="x2", y="x3", style="class", ax=axes[1])
+axes[1].set_title('Experiments 2 and 4', fontsize=20)
+axes[1].set_xlabel("x2",fontsize=20)
+axes[1].set_ylabel("x3",fontsize=20)
+axes[1].tick_params(labelsize=20)
+axes[1].legend(["class 1", "class 2"], fontsize="18", loc ="upper left")
+axes[1].legend(fontsize="18")
+
+# Adjust the spacing between plots
+plt.tight_layout()
+
+# Display the plot
+plt.show()
+
+
+
             
 ################  Experiment 1
 
 
-regressor=regressor_1(n)
+regressor=r1
 omega_2_vec=np.zeros(N)
 
 for ii in range(N):
@@ -259,7 +313,7 @@ o1=omega_2_vec
 ################  Experiment 2
 
 
-regressor=regressor_2(n)
+regressor=r2
 omega_2_vec=np.zeros(N)
 
 for ii in range(N):
@@ -317,7 +371,7 @@ o2=omega_2_vec
 ################  Experiment 3
 
 
-regressor=regressor_1(n)
+regressor=r1
 omega_2_vec=np.zeros(N)
 
 for ii in range(N):
@@ -334,35 +388,9 @@ for ii in range(N):
     omega_2=omega_2_n(Delta_2,Delta_3,sigma,n)
     omega_2_vec[ii]=omega_2
 
-M=42
 
-G=G_n(X)
-R=R_m(X,G,n,M)
-
-print(R)
-
-eiv, v = LA.eigh(R)
-
-
-print('eigenvalues')
-print(eiv)
-
-
-lambda_list=[]
-for i in range(M-2):
-        ll=1/eiv[M-i-1]
-        lambda_list.append(ll)
-
-print('lambda_list')
-
-print(lambda_list)
-
-t=[]
-s=[]
-for i in range(40):
-    t.append(0.05+0.01*i)
-    s.append(Smirnov(0.05+0.01*i,lambda_list))
-    
+t=t1
+s=s1
 
 
 xx3=X
@@ -373,7 +401,7 @@ o3=omega_2_vec
 ################  Experiment 4
 
 
-regressor=regressor_2(n)
+regressor=r2
 omega_2_vec=np.zeros(N)
 
 for ii in range(N):
@@ -390,36 +418,8 @@ for ii in range(N):
     omega_2=omega_2_n(Delta_2,Delta_3,sigma,n)
     omega_2_vec[ii]=omega_2
 
-M=42
-
-G=G_n(X)
-R=R_m(X,G,n,M)
-
-print(R)
-
-eiv, v = LA.eigh(R)
-
-
-print('eigenvalues')
-print(eiv)
-
-
-lambda_list=[]
-for i in range(M-2):
-        ll=1/eiv[M-i-1]
-        lambda_list.append(ll)
-
-print('lambda_list')
-
-print(lambda_list)
-
-t=[]
-s=[]
-for i in range(40):
-    t.append(0.05+0.01*i)
-    s.append(Smirnov(0.05+0.01*i,lambda_list))
-    
-
+t=t2
+s=s2
 
 xx4=X
 t4=t
@@ -427,41 +427,6 @@ s4=s
 o4=omega_2_vec
 
 ################## pictures
-
-set1=[]
-for i in range(len(xx1[:,0])):
-    if xx1[i,1]>=0:
-        set1.append([xx1[i,1],xx1[i,2],1])
-    if xx1[i,1]<0:
-        set1.append([xx1[i,1],xx1[i,2],2])
-        
-set2=[]
-for i in range(len(xx2[:,0])):
-    if xx2[i,1]+xx2[i,2]>=0:
-        set2.append([xx2[i,1],xx2[i,2],1])
-    if xx2[i,1]+xx2[i,2]<0:
-        set2.append([xx2[i,1],xx2[i,2],2])
-
-df1 = pd.DataFrame(set1, columns=['x1', 'x2', 'class'])
-df2 = pd.DataFrame(set2, columns=['x1', 'x2', 'class'])
-
-
-# Create a figure with 1 row and 2 columns
-fig, axes = plt.subplots(1, 2, figsize=(18, 5))
-
-# Plot on the first subplot
-sns.scatterplot(data=df1, x="x1", y="x2", style="class", ax=axes[0])
-axes[0].set_title('Experiments 1 and 3')
-
-# Plot on the second subplot
-sns.scatterplot(data=df2, x="x1", y="x2", style="class", ax=axes[1])
-axes[1].set_title('Experiments 2 and 4')
-
-# Adjust the spacing between plots
-plt.tight_layout()
-
-# Display the plot
-plt.show()
 
 
 
@@ -488,5 +453,6 @@ axs[1, 1].set_title('Experiment 4')
 
 fig.tight_layout()
 plt.show()
+
 
 
